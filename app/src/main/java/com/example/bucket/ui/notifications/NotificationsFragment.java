@@ -9,8 +9,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.bucket.adapters.BucketAdapter;
 import com.example.bucket.databinding.FragmentNotificationsBinding;
+import com.example.bucket.models.Bucket;
+import com.example.bucket.utils.ServiceLocator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class NotificationsFragment extends Fragment {
 
@@ -18,14 +25,25 @@ public class NotificationsFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        NotificationsViewModel notificationsViewModel =
-                new ViewModelProvider(this).get(NotificationsViewModel.class);
-
+        List<Bucket> buckets = ServiceLocator.getInstance().getBucketDao().getAllBuckets();
+        List<Bucket> pendingBuckets = new ArrayList<>();
+        for (Bucket bucket : buckets) {
+            if (bucket.getIsCompleted().equals("Pending")) {
+                pendingBuckets.add(bucket);
+            }
+        }
         binding = FragmentNotificationsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+        BucketAdapter bucketAdapter = new BucketAdapter(getContext(), pendingBuckets);
 
-        final TextView textView = binding.textNotifications;
-        notificationsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getContext(),
+                LinearLayoutManager.VERTICAL, false);
+        if (pendingBuckets.size() > 0) {
+            binding.recyclerView.setLayoutManager(linearLayoutManager);
+            binding.recyclerView.setAdapter(bucketAdapter);
+        } else {
+            binding.textNotif.setText("No list");
+        }
         return root;
     }
 

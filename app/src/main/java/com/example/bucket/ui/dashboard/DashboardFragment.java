@@ -9,8 +9,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.bucket.adapters.BucketAdapter;
 import com.example.bucket.databinding.FragmentDashboardBinding;
+import com.example.bucket.models.Bucket;
+import com.example.bucket.utils.ServiceLocator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DashboardFragment extends Fragment {
 
@@ -18,14 +25,26 @@ public class DashboardFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        DashboardViewModel dashboardViewModel =
-                new ViewModelProvider(this).get(DashboardViewModel.class);
-
+        List<Bucket> buckets = ServiceLocator.getInstance().getBucketDao().getAllBuckets();
+        List<Bucket> completedBuckets = new ArrayList<>();
+        for (Bucket bucket : buckets) {
+            if (bucket.getIsCompleted().equals("Completed")) {
+                completedBuckets.add(bucket);
+            }
+        }
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+        BucketAdapter bucketAdapter = new BucketAdapter(getContext(), completedBuckets);
 
-        final TextView textView = binding.textDashboard;
-        dashboardViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getContext(),
+                LinearLayoutManager.VERTICAL, false);
+
+        if (completedBuckets.size() > 0) {
+            binding.recyclerView.setLayoutManager(linearLayoutManager);
+            binding.recyclerView.setAdapter(bucketAdapter);
+        } else {
+            binding.textDash.setText("No list");
+        }
         return root;
     }
 

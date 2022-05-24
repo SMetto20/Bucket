@@ -1,6 +1,7 @@
 package com.example.bucket.adapters;
 
 import android.content.Context;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,16 +12,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bucket.R;
 import com.example.bucket.models.Bucket;
+import com.example.bucket.utils.ServiceLocator;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class BucketAdapter extends RecyclerView.Adapter<BucketAdapter.Viewholder> {
 
     private Context context;
-    private ArrayList<Bucket> bucketArrayList;
+    private List<Bucket> bucketArrayList;
 
     // Constructor
-    public BucketAdapter(Context context, ArrayList<Bucket> bucketList) {
+    public BucketAdapter(Context context, List<Bucket> bucketList) {
         this.context = context;
         this.bucketArrayList = bucketList;
     }
@@ -41,6 +44,26 @@ public class BucketAdapter extends RecyclerView.Adapter<BucketAdapter.Viewholder
         holder.description.setText(model.getDescription());
         holder.isCompleted.setText(model.getIsCompleted());
 
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                // to delete the item from recycler view
+                ServiceLocator.getInstance().getBucketDao().deleteBucket(model);
+                bucketArrayList.remove(model);
+                notifyDataSetChanged();
+                return true;
+            }
+        });
+
+       holder.isCompleted.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+               // to update the item from recycler view
+               ServiceLocator.getInstance().getBucketDao().updateBucket(model);
+               notifyDataSetChanged();
+           }
+       });
+
     }
 
     @Override
@@ -54,7 +77,6 @@ public class BucketAdapter extends RecyclerView.Adapter<BucketAdapter.Viewholder
     // your views such as TextView and Imageview.
     public class Viewholder extends RecyclerView.ViewHolder {
         private TextView title, description, isCompleted;
-
         public Viewholder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.title);

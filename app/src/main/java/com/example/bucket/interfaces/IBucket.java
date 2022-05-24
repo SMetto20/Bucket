@@ -6,11 +6,11 @@ import com.example.bucket.models.Bucket;
 import java.util.List;
 
 public interface IBucket {
-    boolean addBucket(Bucket bucket);
+    void addBucket(Bucket bucket);
 
-    boolean updateBucket(Bucket bucket);
+    void updateBucket(Bucket bucket);
 
-    boolean deleteBucket(Bucket bucket);
+    void deleteBucket(Bucket bucket);
 
     Bucket getBucket(int id);
 

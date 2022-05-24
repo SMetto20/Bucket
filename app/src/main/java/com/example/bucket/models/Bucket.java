@@ -38,6 +38,13 @@ public class Bucket {
         return buckets;
     }
 
+    public static void setBucket(Bucket bucket) {
+        id = bucket.getId();
+        title = bucket.getTitle();
+        description = bucket.getDescription();
+        isCompleted = bucket.isCompleted();
+    }
+
     public static void setId(int bucketId) {
         id = bucketId;
     }
